@@ -1,0 +1,11 @@
+{
+  "name": "projet",
+  "version": "0.0.1",
+  "main": "main.js",
+  "repository": "https://github.com/FluGhost/bot-gck.git",
+  "author": "FluGhost <fluvio.371@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "discordjs/discord.js"
+  }
+}
