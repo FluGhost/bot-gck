@@ -13,114 +13,108 @@ client.on("ready", () => {
 
 client.on("message", msg => {
   if (msg.author.bot) return;
-  const args = msg.content.split(/ + /g);
+  const args = msg.content.slice(json.prefix.length).split(/ +/);
   const cmd = args.shift().toLowerCase();
-  if (cmd.startsWith(json.prefix)) {
-    /* ping */
 
-    if (args[0] === "ping") {
-      const pingEmbed = new MessageEmbed()
-        .setTitle("Pong !")
-        .setDescription(`Took : ${Math.round(client.ping)} ms.`)
-        .setColor(json.colorEmbed)
-        .setFooter(
-          "Bot created by : FluGhost#7007",
-          "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
-        );
+  /* ping */
 
-      msg.channel.send(pingEmbed);
-    }
-    /* help */
-    const helpEmbed = new MessageEmbed()
-      .setTitle("Hey ! This is help for you !")
-      .setDescription("To use a command, please use the prefix + the command.")
-      .addField(
-        "Exemple :",
-        `\`${json.prefix}help\` It's the prefix + \`help\`.`
-      )
-      .addField("__**Prefix**__ :", `${json.prefix}`)
-      .addField("\u200b", "**Relase commands :**", false)
-      .addField(
-        `\`help\``,
-        `This is the help message. And you are on this command.`
-      )
-      .addField(`\`ping\``, `This will give you the ping of the bot.`)
-      .addField("\u200b", "**Alpha commands :**", false)
-      .addField("This commands will be crash the bot or be nothing.")
-      .addField(
-        `\`avatar\``,
-        `This will give you your avatar and you can download it.`
-      )
-      .addBlankField()
-      .setColor(json.colorEmbed)
-      .setFooter(
-        "Bot created by : FluGhost#7007",
-        "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
-      );
-    if (cmd === json.prefix + "help") {
-      msg.channel.send(helpEmbed);
-    }
-
-    /* obtenir un utilisteur depuis une mention */
-    function getUserFromMention(mention) {
-      if (!mention) return;
-
-      if (mention.startsWith("<@") && mention.endsWith(">")) {
-        mention = mention.slice(2, -1);
-
-        if (mention.startsWith(json.prefix)) {
-          mention = mention.slice(1);
-        }
-
-        return client.users.get(mention);
-      }
-    }
-
-    /* avatar */
-    const avatarMeEmbed = new MessageEmbed()
-      .setTitle("This is your avatar !")
-      .setURL(`${msg.author.displayAvatarURL()}`)
-      .setDescription(
-        "Click on the title text to open this image on your browser. So you can download it."
-      )
-      .setImage(msg.author.displayAvatarURL())
+  if (args[0] === "ping") {
+    const pingEmbed = new MessageEmbed()
+      .setTitle("Pong !")
+      .setDescription(`Took : ${Math.round(client.ping)} ms.`)
       .setColor(json.colorEmbed)
       .setFooter(
         "Bot created by : FluGhost#7007",
         "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
       );
 
+    msg.channel.send(pingEmbed);
+  }
+  /* help */
+  const helpEmbed = new MessageEmbed()
+    .setTitle("Hey ! This is help for you !")
+    .setDescription("To use a command, please use the prefix + the command.")
+    .addField("Exemple :", `\`${json.prefix}help\` It's the prefix + \`help\`.`)
+    .addField("__**Prefix**__ :", `${json.prefix}`)
+    .addField("\u200b", "**Relase commands :**", false)
+    .addField(
+      `\`help\``,
+      `This is the help message. And you are on this command.`
+    )
+    .addField(`\`ping\``, `This will give you the ping of the bot.`)
+    .addField("\u200b", "**Alpha commands :**", false)
+    .addField("This commands will be crash the bot or be nothing.")
+    .addField(
+      `\`avatar\``,
+      `This will give you your avatar and you can download it.`
+    )
+    .addBlankField()
+    .setColor(json.colorEmbed)
+    .setFooter(
+      "Bot created by : FluGhost#7007",
+      "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
+    );
+  if (cmd === json.prefix + "help") {
+    msg.channel.send(helpEmbed);
+  }
+
+  /* obtenir un utilisteur depuis une mention */
+  function getUserFromMention(mention) {
+    // The id is the first and only match found by the RegEx.
+    const matches = mention.match(/^<@!?(\d+)>$/);
+
+    // If supplied variable was not a mention, matches will be null instead of an array.
+    if (!matches) return;
+
+    // However the first element in the matches array will be the entire mention, not just the ID,
+    // so use index 1.
+    const id = matches[1];
+
+    return client.users.get(id);
+  }
+
+  /* avatar */
+  if (msg.content.startsWith(json.prefix)) {
     /* donnons à l'utilisateur son avatar */
-    if (cmd === json.prefix + "avatar" && !args[0]) {
-      msg.channel.send(avatarMeEmbed);
-      /* donnons à l'utisateur l'avatar de son tag */
-    } else if (
-      cmd === "avatar" &&
-      args[0].startsWith("<@") &&
-      args[0].endsWith(">")
-    ) {
-      /* si l'utilisateur n'a pas mis de bon arguments alors le rappeler à l'ordre */
-      const user = getUserFromMention(args[0]);
-      if (!user) {
-        msg.reply(
-          `Sorry, is you want to have an avatar of a user, tag it. Else, don't write arguments after the command.\n If you have questions, this commands can help you : \`${json.prefix}help\``
-        );
-        console.log(`${msg.author.name} hasn't writted the true arguments.`);
-      } else {
-        const avatarAutherEmbed = new MessageEmbed()
-          .setTitle(`This is the avatar of ${user} !`)
-          .setURL(`${user.displayAvatarURL()}`)
+    if (cmd === "avatar") {
+      //Si c'est la commande avatar
+      if (!args) {
+        //Si il n'y a pas d'arguments on donne l'avatar de l'auteur du message
+        const avatarMeEmbed = new MessageEmbed()
+          .setTitle("This is your avatar !")
+          .setURL(`${msg.author.displayAvatarURL()}`)
           .setDescription(
             "Click on the title text to open this image on your browser. So you can download it."
           )
-          .setImage(user.displayAvatarURL())
+          .setImage(msg.author.displayAvatarURL())
           .setColor(json.colorEmbed)
           .setFooter(
             "Bot created by : FluGhost#7007",
             "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
           );
-
-        msg.channel.send(avatarAutherEmbed);
+        msg.channel.send(avatarMeEmbed);
+      } else {
+        //Si il y a des arguments
+        const user = getUserFromMention(args[0]); //On récupère l'ID
+        if (user) {
+          //Si il y a un ID
+          const avatarAutherEmbed = new MessageEmbed()
+            .setTitle(`This is the avatar of ${user.tag} !`)
+            .setURL(`${user.displayAvatarURL()}`)
+            .setDescription(
+              "Click on the title text to open this image on your browser. So you can download it."
+            )
+            .setImage(user.displayAvatarURL())
+            .setColor(json.colorEmbed)
+            .setFooter(
+              "Bot created by : FluGhost#7007",
+              "https://image.noelshack.com/fichiers/2019/50/5/1576262895-flughostlogo.png"
+            );
+          msg.channel.send(avatarAutherEmbed);
+        } else {
+          //Si il n'y a pas d'ID
+          msg.reply("tu n'as pas donné une mention valable");
+        }
       }
     }
   }
